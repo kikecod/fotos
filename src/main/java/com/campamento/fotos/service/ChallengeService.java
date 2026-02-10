@@ -10,6 +10,7 @@ import com.campamento.fotos.repository.ChallengeRepository;
 import com.campamento.fotos.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,6 +58,7 @@ public class ChallengeService {
      * COMPLETED = todos los retos de ese día han vencido.
      * ACTIVE = al menos uno sigue abierto.
      */
+    @Transactional(readOnly = true)
     public List<DayInfoResponse> getAvailableDays() {
         var dayNumbers = challengeRepository.findDistinctDayNumbers();
         LocalDateTime now = LocalDateTime.now();
@@ -68,7 +70,7 @@ public class ChallengeService {
                     .allMatch(c -> now.isAfter(c.getLimitTime()));
 
             int totalSubmissions = challenges.stream()
-                    .mapToInt(c -> c.getSubmissions() != null ? c.getSubmissions().size() : 0)
+                    .mapToInt(c -> (int) submissionRepository.countByChallenge(c))
                     .sum();
 
             return DayInfoResponse.builder()
