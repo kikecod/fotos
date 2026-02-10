@@ -31,6 +31,9 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
+                                                // --- OPTIONS para CORS preflight ---
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                                
                                                 // --- Públicas (sin auth) ---
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers("/api/test/health").permitAll()
@@ -80,9 +83,10 @@ public class SecurityConfig {
                                 "https://*.vercel.app",
                                 "https://*.onrender.com"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                configuration.setAllowedHeaders(List.of("*"));
-                configuration.setExposedHeaders(List.of("Authorization"));
+                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+                configuration.setExposedHeaders(Arrays.asList("Authorization"));
                 configuration.setAllowCredentials(true);
+                configuration.setMaxAge(3600L); // Cache preflight por 1 hora
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
