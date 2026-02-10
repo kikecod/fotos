@@ -1,0 +1,25 @@
+# Build outputs
+target/
+!target/*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Local files
+uploads/
+*.log
+*.tmp
+
+# Docs
+HELP.md
+README.md
+
+# OS
+.DS_Store
+Thumbs.db

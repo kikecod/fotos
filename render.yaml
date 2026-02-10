@@ -1,0 +1,60 @@
+# Render Blueprint - Infraestructura como Código
+# Este archivo define todos los servicios necesarios para el despliegue
+
+databases:
+  - name: fotos-postgres
+    plan: free # Cambia a 'starter' para producción real
+    databaseName: fotos_db
+    user: fotos_user
+    region: oregon # Opciones: oregon, frankfurt, singapore, ohio
+
+services:
+  - type: web
+    name: campamento-fotos-api
+    runtime: docker
+    plan: free # Cambia a 'starter' para producción real
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/test/health
+    envVars:
+      # Base de datos - se conecta automáticamente al Postgres de arriba
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fotos-postgres
+          property: connectionString
+      - key: JDBC_DATABASE_URL
+        fromDatabase:
+          name: fotos-postgres
+          property: connectionString
+        # Render convierte automáticamente postgres:// a jdbc:postgresql://
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: fotos-postgres
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: fotos-postgres
+          property: password
+      
+      # Puerto (Render lo inyecta automáticamente)
+      - key: PORT
+        value: "8080"
+      
+      # JWT - IMPORTANTE: Generar una clave segura
+      - key: JWT_SECRET_KEY
+        generateValue: true # Render genera un valor aleatorio
+      - key: JWT_EXPIRATION
+        value: "86400000" # 24 horas en ms
+      
+      # AWS S3 - Configurar manualmente en el dashboard de Render
+      - key: S3_BUCKET_NAME
+        sync: false # Indica que debes configurarlo manualmente
+      - key: AWS_REGION
+        value: "sa-east-1"
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_CLOUDFRONT_URL
+        sync: false
