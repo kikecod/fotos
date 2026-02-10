@@ -21,6 +21,7 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final SubmissionRepository submissionRepository;
+    private final java.time.Clock clock;
 
     /**
      * ADMIN crea un nuevo reto.
@@ -62,7 +63,7 @@ public class ChallengeService {
     @Transactional(readOnly = true)
     public List<DayInfoResponse> getAvailableDays() {
         var dayNumbers = challengeRepository.findDistinctDayNumbers();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
 
         return dayNumbers.stream().map(day -> {
             var challenges = challengeRepository.findByDayNumberOrderByStartTimeAsc(day);
@@ -132,7 +133,7 @@ public class ChallengeService {
      * Obtiene los retos vencidos de un día (para la galería).
      */
     public List<Challenge> getExpiredChallengesByDay(Integer dayNumber) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         return challengeRepository.findByDayNumberOrderByStartTimeAsc(dayNumber).stream()
                 .filter(c -> now.isAfter(c.getLimitTime()))
                 .toList();
@@ -143,7 +144,7 @@ public class ChallengeService {
      */
     private ChallengeResponse toResponse(Challenge challenge, User user) {
         String status;
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
 
         if (now.isAfter(challenge.getLimitTime())) {
             status = "EXPIRED"; // Rojo

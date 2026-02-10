@@ -21,6 +21,7 @@ public class SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final ChallengeService challengeService;
     private final StorageService storageService;
+    private final java.time.Clock clock;
 
     /**
      * USER sube una foto a un reto.
@@ -37,7 +38,7 @@ public class SubmissionService {
             throw ApiException.conflict("Ya subiste una foto para este reto. Usa PUT para actualizarla.");
         }
 
-        if (LocalDateTime.now().isAfter(challenge.getLimitTime())) {
+        if (LocalDateTime.now(clock).isAfter(challenge.getLimitTime())) {
             throw ApiException.badRequest("⏰ Tiempo agotado. La hora límite era: " + challenge.getLimitTime());
         }
 
@@ -71,7 +72,7 @@ public class SubmissionService {
                 .orElseThrow(() -> ApiException.notFound("No tienes una foto subida para este reto"));
 
         // Verificar deadline
-        if (LocalDateTime.now().isAfter(challenge.getLimitTime())) {
+        if (LocalDateTime.now(clock).isAfter(challenge.getLimitTime())) {
             throw ApiException.badRequest("⏰ Tiempo agotado. Ya no puedes modificar tu foto.");
         }
 
@@ -120,7 +121,7 @@ public class SubmissionService {
     public List<SubmissionResponse> getPublicSubmissions(Long challengeId) {
         Challenge challenge = challengeService.findByIdOrThrow(challengeId);
 
-        if (LocalDateTime.now().isBefore(challenge.getLimitTime())) {
+        if (LocalDateTime.now(clock).isBefore(challenge.getLimitTime())) {
             throw ApiException
                     .forbidden("Las fotos de este reto aún no son públicas. Espera hasta: " + challenge.getLimitTime());
         }

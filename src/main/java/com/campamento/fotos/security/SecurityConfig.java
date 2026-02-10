@@ -33,7 +33,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 // --- OPTIONS para CORS preflight ---
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                                
+
                                                 // --- Públicas (sin auth) ---
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers("/api/test/health").permitAll()
@@ -55,12 +55,12 @@ public class SecurityConfig {
                                                 .hasAuthority("ADMIN")
                                                 .requestMatchers("/api/submissions/all").hasAuthority("ADMIN")
 
-                                                // --- USER (equipos) ---
+                                                // --- USER y ADMIN (equipos y admins pueden subir fotos) ---
                                                 .requestMatchers(HttpMethod.POST, "/api/challenges/*/submit")
-                                                .hasAuthority("USER")
+                                                .hasAnyAuthority("USER", "ADMIN")
                                                 .requestMatchers(HttpMethod.PUT, "/api/challenges/*/submit")
-                                                .hasAuthority("USER")
-                                                .requestMatchers("/api/submissions/my").hasAuthority("USER")
+                                                .hasAnyAuthority("USER", "ADMIN")
+                                                .requestMatchers("/api/submissions/my").hasAnyAuthority("USER", "ADMIN")
 
                                                 // --- Todo lo demás requiere auth ---
                                                 .anyRequest().authenticated())
@@ -83,7 +83,8 @@ public class SecurityConfig {
                                 "https://*.vercel.app",
                                 "https://*.onrender.com"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+                configuration.setAllowedHeaders(
+                                Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
                 configuration.setExposedHeaders(Arrays.asList("Authorization"));
                 configuration.setAllowCredentials(true);
                 configuration.setMaxAge(3600L); // Cache preflight por 1 hora
