@@ -23,19 +23,6 @@ services:
         fromDatabase:
           name: fotos-postgres
           property: connectionString
-      - key: JDBC_DATABASE_URL
-        fromDatabase:
-          name: fotos-postgres
-          property: connectionString
-        # Render convierte automáticamente postgres:// a jdbc:postgresql://
-      - key: DATABASE_USERNAME
-        fromDatabase:
-          name: fotos-postgres
-          property: user
-      - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: fotos-postgres
-          property: password
       
       # Puerto (Render lo inyecta automáticamente)
       - key: PORT
