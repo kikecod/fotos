@@ -148,9 +148,7 @@ public class ChallengeService {
             status = "PENDING"; // Gris
         }
 
-        int submissionCount = challenge.getSubmissions() != null
-                ? challenge.getSubmissions().size()
-                : 0;
+        int submissionCount = (int) submissionRepository.countByChallenge(challenge);
 
         return ChallengeResponse.builder()
                 .id(challenge.getIdChallenge())

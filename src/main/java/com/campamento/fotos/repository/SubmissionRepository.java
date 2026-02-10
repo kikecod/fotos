@@ -19,4 +19,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     Optional<Submission> findByUserAndChallenge(User user, Challenge challenge);
 
     List<Submission> findByChallengeIn(List<Challenge> challenges);
+
+    long countByChallenge(Challenge challenge);
 }
