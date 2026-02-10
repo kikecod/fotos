@@ -25,6 +25,7 @@ public class ChallengeService {
     /**
      * ADMIN crea un nuevo reto.
      */
+    @Transactional
     public ChallengeResponse create(ChallengeRequest request) {
         if (request.getLimitTime().isBefore(request.getStartTime())) {
             throw ApiException.badRequest("La hora límite debe ser posterior a la hora de inicio");
@@ -101,6 +102,7 @@ public class ChallengeService {
     /**
      * ADMIN actualiza un reto existente.
      */
+    @Transactional
     public ChallengeResponse update(Long id, ChallengeRequest request) {
         if (request.getLimitTime().isBefore(request.getStartTime())) {
             throw ApiException.badRequest("La hora límite debe ser posterior a la hora de inicio");
@@ -120,6 +122,7 @@ public class ChallengeService {
     /**
      * ADMIN elimina un reto.
      */
+    @Transactional
     public void delete(Long id) {
         var challenge = findByIdOrThrow(id);
         challengeRepository.delete(challenge);

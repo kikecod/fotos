@@ -6,6 +6,7 @@ import com.campamento.fotos.dto.AuthenticationResponse;
 import com.campamento.fotos.dto.RegisterRequest;
 import com.campamento.fotos.entity.Role;
 import com.campamento.fotos.entity.User;
+import com.campamento.fotos.exception.ApiException;
 import com.campamento.fotos.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,17 +25,23 @@ public class AuthenticationService {
 
         // --- REGISTRO DE USUARIO ---
         public AuthenticationResponse register(RegisterRequest request) {
-                // 1. Crear el objeto Usuario
+                // Validar que el username no exista
+                if (repository.findByUsername(request.getUsername()).isPresent()) {
+                        throw ApiException.conflict(
+                                        "El nombre de usuario '" + request.getUsername() + "' ya está en uso");
+                }
+
+                // Forzar rol USER (prevenir escalación de privilegios)
                 var user = User.builder()
                                 .username(request.getUsername())
-                                .password(passwordEncoder.encode(request.getPassword())) // ¡Nunca guardar texto plano!
-                                .role(request.getRole())
+                                .password(passwordEncoder.encode(request.getPassword()))
+                                .role(Role.USER)
                                 .build();
 
-                // 2. Guardar en BD
+                // Guardar en BD
                 repository.save(user);
 
-                // 3. Generar Token automáticamente para que ya quede logueado
+                // Generar Token automáticamente para que ya quede logueado
                 var jwtToken = jwtService.generateToken(user);
 
                 return AuthenticationResponse.builder()
@@ -44,19 +51,18 @@ public class AuthenticationService {
 
         // --- LOGIN DE USUARIO ---
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
-                // 1. El AuthenticationManager se encarga de verificar usuario y contraseña.
-                // Si la contraseña es incorrecta, lanza una excepción automáticamente.
+                // El AuthenticationManager se encarga de verificar usuario y contraseña.
+                // Si la contraseña es incorrecta, lanza BadCredentialsException.
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 request.getUsername(),
                                                 request.getPassword()));
 
-                // 2. Si llegamos aquí, es que el usuario y contraseña son correctos.
-                // Buscamos al usuario en la BD para generar el token.
+                // Si llegamos aquí, el usuario y contraseña son correctos.
                 var user = repository.findByUsername(request.getUsername())
                                 .orElseThrow();
 
-                // 3. Generamos el token
+                // Generamos el token
                 var jwtToken = jwtService.generateToken(user);
 
                 return AuthenticationResponse.builder()

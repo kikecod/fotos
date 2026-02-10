@@ -8,6 +8,7 @@ import com.campamento.fotos.exception.ApiException;
 import com.campamento.fotos.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class SubmissionService {
      * 2. ¿Ya subió foto? (duplicados)
      * 3. ¿Antes del deadline?
      */
+    @Transactional
     public SubmissionResponse submit(Long challengeId, MultipartFile file, User user) {
         Challenge challenge = challengeService.findByIdOrThrow(challengeId);
 
@@ -60,6 +62,7 @@ public class SubmissionService {
      * USER actualiza su foto de un reto (antes del deadline).
      * Reemplaza el archivo anterior.
      */
+    @Transactional
     public SubmissionResponse update(Long challengeId, MultipartFile file, User user) {
         Challenge challenge = challengeService.findByIdOrThrow(challengeId);
 
@@ -93,6 +96,7 @@ public class SubmissionService {
     /**
      * USER ve sus propias fotos subidas.
      */
+    @Transactional(readOnly = true)
     public List<SubmissionResponse> getMySubmissions(User user) {
         return submissionRepository.findByUser(user).stream()
                 .map(this::toResponse)
@@ -102,6 +106,7 @@ public class SubmissionService {
     /**
      * ADMIN ve todas las fotos.
      */
+    @Transactional(readOnly = true)
     public List<SubmissionResponse> getAllSubmissions() {
         return submissionRepository.findAll().stream()
                 .map(this::toResponse)
@@ -111,6 +116,7 @@ public class SubmissionService {
     /**
      * PÚBLICO: Ve las fotos de un reto SOLO si el tiempo ya expiró.
      */
+    @Transactional(readOnly = true)
     public List<SubmissionResponse> getPublicSubmissions(Long challengeId) {
         Challenge challenge = challengeService.findByIdOrThrow(challengeId);
 
@@ -128,6 +134,7 @@ public class SubmissionService {
      * PÚBLICO: Galería completa de un día.
      * Solo muestra fotos de retos vencidos de ese día.
      */
+    @Transactional(readOnly = true)
     public List<SubmissionResponse> getGalleryByDay(Integer dayNumber) {
         List<Challenge> expiredChallenges = challengeService.getExpiredChallengesByDay(dayNumber);
 

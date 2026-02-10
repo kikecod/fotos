@@ -45,3 +45,9 @@ services:
         sync: false
       - key: AWS_CLOUDFRONT_URL
         sync: false
+      
+      # JPA Production overrides
+      - key: DDL_AUTO
+        value: "validate"
+      - key: SHOW_SQL
+        value: "false"

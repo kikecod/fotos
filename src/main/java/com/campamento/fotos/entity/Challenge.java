@@ -43,5 +43,7 @@ public class Challenge {
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
     @Schema(description = "Lista de fotos subidas para este reto")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Submission> submissions = new ArrayList<>();
 }

@@ -35,12 +35,12 @@ public class Submission {
     @Schema(description = "Fecha y hora de carga automática", example = "2026-02-10T07:30:00")
     private LocalDateTime uploadedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Schema(description = "Usuario que subió la foto")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "challenge_id", nullable = false)
     @Schema(description = "Reto al que pertenece esta foto")
     private Challenge challenge;
