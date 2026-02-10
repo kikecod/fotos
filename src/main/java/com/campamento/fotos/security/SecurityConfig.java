@@ -76,10 +76,12 @@ public class SecurityConfig {
                 configuration.setAllowedOriginPatterns(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://localhost:5173",
+                                "https://campa-frontend.vercel.app",
                                 "https://*.vercel.app",
                                 "https://*.onrender.com"));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 configuration.setAllowedHeaders(List.of("*"));
+                configuration.setExposedHeaders(List.of("Authorization"));
                 configuration.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
